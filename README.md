@@ -1,36 +1,62 @@
 # AWS Cost Guardian
 
-Monitor de costos d'AWS amb alertes, basat en FastAPI, PostgreSQL i Docker Compose.
+AWS cost monitoring tool with automatic ingestion, threshold alerts, and a REST API. Built with FastAPI, PostgreSQL and Docker Compose.
 
-## Arquitectura
+## Stack
 
-- **FastAPI** per a l'API backend.
-- **PostgreSQL** per a dades persistents i registres.
-- **Docker Compose** per a entorn local reproduïble.
-- **Vanilla HTML/JS** per a dashboard lleuger (planificat).
-- **Boto3** per a consulta de cost AWS a Cost Explorer.
+- **FastAPI** — REST API backend
+- **PostgreSQL** — persistent cost data storage
+- **SQLAlchemy + Alembic** — ORM and database migrations
+- **Boto3** — AWS Cost Explorer integration
+- **APScheduler** — automatic ingestion every 6 hours
+- **Docker Compose** — reproducible local environment
 
-## Estructura de carpetes
+## Project structure
 
-- `app/`
-  - `api/v1/` : rutes i versionat de l'API
-  - `core/` : configuració i constants de l'aplicació
-  - `db/` : definició de base de dades i base models
-  - `models/` : ORM models de SQLAlchemy
-  - `services/` : integracions amb AWS i lògica d'informes
-- `tests/` : proves unitàries i d'integració
-- `Dockerfile` : imatge de producció per a l'API
-- `docker-compose.yml` : entorn local de desenvolupament
-- `.env` : variables sensibles locals (no es commiten)
+```
+app/
+  api/v1/       # versioned API routes
+  core/         # config and scheduler
+  db/           # database engine and session
+  models/       # SQLAlchemy ORM models
+  services/     # AWS Cost Explorer logic
+alembic/        # database migrations
+tests/          # unit and integration tests
+Dockerfile
+docker-compose.yml
+```
 
-## Començar
+## Getting started
 
-1. Copia `.env.example` a `.env`.
-2. Ajusta `DATABASE_URL` i `AWS_*` si cal.
-3. Executa `docker compose up --build`.
-4. Navega a `http://localhost:8000`.
+1. Copy `.env.example` to `.env` and fill in your values:
+   ```
+   AWS_ACCESS_KEY_ID=your_key
+   AWS_SECRET_ACCESS_KEY=your_secret
+   AWS_REGION=us-east-1
+   AWS_COST_ALERT_THRESHOLD=100.0
+   ```
+2. Build and start:
+   ```bash
+   docker compose up --build
+   ```
+3. Apply database migrations:
+   ```bash
+   docker compose run --rm web alembic upgrade head
+   ```
+4. API available at `http://localhost:8000`
+5. Interactive docs at `http://localhost:8000/docs`
+
+## API endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/health` | Health check including DB connectivity |
+| `POST` | `/api/v1/costs/ingest` | Fetch costs from AWS and store in DB |
+| `GET` | `/api/v1/costs` | List cost records (filters: `service`, `start`, `end`) |
+| `GET` | `/api/v1/costs/summary` | Monthly cost summary with threshold alert |
 
 ## Notes
 
-- Aquesta arquitectura està pensada per ser escalable i apta per GitHub des del primer dia.
-- Els secrets no es commiten; s'usen variables d'entorn i `.env` local.
+- `.env` is git-ignored — never commit credentials
+- The scheduler runs `ingest` automatically every 6 hours
+- `POST /costs/ingest` is idempotent — safe to call multiple times
