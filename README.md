@@ -32,7 +32,7 @@ docker-compose.yml
    ```
    AWS_ACCESS_KEY_ID=your_key
    AWS_SECRET_ACCESS_KEY=your_secret
-   AWS_REGION=us-east-1
+   AWS_REGION=your_region
    AWS_COST_ALERT_THRESHOLD=100.0
    ```
 2. Build and start:
