@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+.env
+.env.*
+*.log
+.vscode/
+__pypackages__/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.DS_Store
+/.pytest_cache/
+/.mypy_cache/
+/.cache/
+
+# Docker
+docker-compose.override.yml
+*.local
+
+# VS Code
+.history/
